@@ -1,82 +1,9 @@
-import streamlit as st
 import random
 
-# Custom CSS for Full-Screen Background
-st.markdown("""
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
-        
-        /* Full-screen gradient background */
-        .stApp {
-            background: linear-gradient(45deg, #FF9A8B, #FF6B6B, #4ECDC4, #556270);
-            background-size: 400% 400%;
-            animation: gradientBG 10s ease infinite;
-            min-height: 100vh;
-        }
-
-        @keyframes gradientBG {
-            0% {background-position: 0% 50%;}
-            50% {background-position: 100% 50%;}
-            100% {background-position: 0% 50%;}
-        }
-
-        /* Main content container */
-        .main-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem auto;
-            max-width: 800px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .title {
-            color: #FFD700;
-            font-family: 'Comic Neue', cursive;
-            font-size: 3.5rem !important;
-            text-align: center;
-            text-shadow: 2px 2px #4ECDC4;
-            margin-bottom: 30px;
-        }
-
-        .scoreboard {
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 20px;
-            color: white;
-        }
-
-        /* Keyboard buttons */
-        .stButton>button {
-            background: rgba(255, 255, 255, 0.9) !important;
-            color: #4ECDC4 !important;
-            border-radius: 10px !important;
-            border: 2px solid #4ECDC4 !important;
-            font-weight: bold !important;
-            transition: all 0.3s ease !important;
-        }
-
-        .stButton>button:disabled {
-            background: rgba(255, 107, 107, 0.5) !important;
-            color: white !important;
-        }
-
-        .stButton>button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
-        }
-
-    </style>
-""", unsafe_allow_html=True)
-
-# Words for the game
 words = ["ALPACIN", "PYTHON", "STREAMLIT", "DEVELOPER", "HANGMAN"]
 
-# Initialize game state
-if 'game' not in st.session_state:
-    st.session_state.game = {
+def new_game():
+    return {
         'word': random.choice(words),
         'guessed': [],
         'attempts': 6,
@@ -84,58 +11,67 @@ if 'game' not in st.session_state:
         'losses': 0
     }
 
-# Function to update the game
-def update_game(letter):
-    game = st.session_state.game
-    if letter not in game['word'].upper():
-        game['attempts'] -= 1
-    game['guessed'].append(letter)
-    
-    # Check win/lose conditions
-    if all(c in game['guessed'] for c in game['word'].upper()):
+def display_status(game):
+    display_word = ' '.join([c if c in game['guessed'] else '_' for c in game['word']])
+    attempts_visual = '🟢' * game['attempts'] + '🔴' * (6 - game['attempts'])
+    print("\n---------------------------")
+    print(f"Word: {display_word}")
+    print(f"Attempts Left: {attempts_visual}")
+    print(f"Guessed Letters: {' '.join(game['guessed'])}")
+    print(f"Wins: {game['wins']} | Losses: {game['losses']}")
+    print("---------------------------")
+
+def update_game(game, letter):
+    letter = letter.upper()
+    if letter not in game['guessed']:
+        if letter not in game['word']:
+            game['attempts'] -= 1
+        game['guessed'].append(letter)
+
+    if all(c in game['guessed'] for c in game['word']):
         game['wins'] += 1
-        st.balloons()
+        print(f"\n🎉 Congratulations! You guessed the word: {game['word']}")
+        return True
     elif game['attempts'] <= 0:
         game['losses'] += 1
+        print(f"\n💀 Game Over! The word was: {game['word']}")
+        return True
+    return False
 
-# Main content container
-st.markdown('<div class="main-container">', unsafe_allow_html=True)
+# --- Main Game Loop ---
+game = new_game()
 
-# Title with Emoji
-st.markdown('<h1 class="title">✨ Hangman (Word Game) 🎨</h1>', unsafe_allow_html=True)
+while True:
+    display_status(game)
+    guess = input("Enter a letter (or type 'new' for new game, 'exit' to quit): ").strip()
 
-# Display word
-display_word = ' '.join([c if c in st.session_state.game['guessed'] else '_' for c in st.session_state.game['word'].upper()])
-st.markdown(f'<h2 style="text-align:center; color:#FFD700; font-size:2rem;">{display_word}</h2>', unsafe_allow_html=True)
+    if guess.lower() == 'exit':
+        print("Thanks for playing Hangman!")
+        break
+    elif guess.lower() == 'new':
+        game = {
+            'word': random.choice(words),
+            'guessed': [],
+            'attempts': 6,
+            'wins': game['wins'],
+            'losses': game['losses']
+        }
+        continue
+    elif len(guess) != 1 or not guess.isalpha():
+        print("⚠️ Please enter a single valid letter.")
+        continue
 
-# Attempts left with emoji
-attempts_visual = ' '.join(['🟢'] * st.session_state.game['attempts'] + ['🔴'] * (6 - st.session_state.game['attempts']))
-st.markdown(f"### ❤️ Attempts Left: {attempts_visual}")
-
-# 🎹 Keyboard (Horizontal layout)
-cols = st.columns(13)
-for i, letter in enumerate("ABCDEFGHIJKLMNOPQRSTUVWXYZ"):
-    with cols[i % 13]:
-        if letter not in st.session_state.game['guessed']:
-            if st.button(letter, key=f"btn_{letter}"):
-                update_game(letter)
+    game_over = update_game(game, guess)
+    if game_over:
+        again = input("\nPlay again? (y/n): ").strip().lower()
+        if again == 'y':
+            game = {
+                'word': random.choice(words),
+                'guessed': [],
+                'attempts': 6,
+                'wins': game['wins'],
+                'losses': game['losses']
+            }
         else:
-            st.button(letter, disabled=True, key=f"disabled_{letter}")
-
-# Scoreboard
-st.markdown('<div class="scoreboard">', unsafe_allow_html=True)
-st.markdown(f"🏆 Wins: {st.session_state.game['wins']}  |  💀 Losses: {st.session_state.game['losses']}", unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
-
-# Restart Button
-if st.button('🔁 New Game'):
-    st.session_state.game = {
-        'word': random.choice(words),
-        'guessed': [],
-        'attempts': 6,
-        'wins': st.session_state.game['wins'],
-        'losses': st.session_state.game['losses']
-    }
-
-# Close main container
-st.markdown('</div>', unsafe_allow_html=True)
+            print("Thanks for playing Hangman!")
+            break

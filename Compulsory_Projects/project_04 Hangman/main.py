@@ -38,7 +38,6 @@ def update_game(game, letter):
         return True
     return False
 
-# --- Main Game Loop ---
 game = new_game()
 
 while True:

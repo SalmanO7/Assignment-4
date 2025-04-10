@@ -75,3 +75,5 @@ while True:
         else:
             print("Thanks for playing Hangman!")
             break
+        
+        

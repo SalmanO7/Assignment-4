@@ -10,7 +10,6 @@ def new_game():
         'wins': 0,
         'losses': 0
     }
-
 def display_status(game):
     display_word = ' '.join([c if c in game['guessed'] else '_' for c in game['word']])
     attempts_visual = '🟢' * game['attempts'] + '🔴' * (6 - game['attempts'])

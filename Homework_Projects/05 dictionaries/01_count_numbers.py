@@ -10,7 +10,6 @@ def get_user_nums():
             print("Invalid input! Please enter a valid number.")
     return user_num
 
-
 def count_nums(num_list):
     num_dict = {}
     for num in num_list:

@@ -6,7 +6,7 @@ def chaotic_counting():
     for i in range(10):
         print(f"Chaotic counting: {i}")
         if done():
-            print("Done!", random.random())	
+            print("Done!")	
             break
         
 def done():
@@ -18,5 +18,3 @@ def done():
 if __name__ == "__main__":
     chaotic_counting()
     print("Chaotic counting is done.")
-    
-    

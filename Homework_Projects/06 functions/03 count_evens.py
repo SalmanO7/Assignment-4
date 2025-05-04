@@ -13,6 +13,3 @@ def count_even_numbers(number):
 
 user_input = int(input("Enter a number for check even numbers: "))
 print(count_even_numbers(user_input))
-
-
-

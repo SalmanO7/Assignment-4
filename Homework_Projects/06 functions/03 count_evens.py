@@ -11,6 +11,5 @@ def count_even_numbers(number):
     print(f"Total even numbers: {total_even_numbers}")
     return even_numbers 
 
-
 user_input = int(input("Enter a number for check even numbers: "))
 print(count_even_numbers(user_input))

@@ -8,7 +8,3 @@ def main():
     print_multiple(message,repaets)
 if __name__ == '__main__':
     main()                   
-    
-    
-    
-    
